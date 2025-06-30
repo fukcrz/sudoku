@@ -6,21 +6,27 @@ import { Eraser } from 'lucide-react';
 interface ControlsProps {
   onNumberPress: (num: number) => void;
   onErase: () => void;
+  determinedValue: number | null;
 }
 
-export function Controls({ onNumberPress, onErase }: ControlsProps) {
+export function Controls({ onNumberPress, onErase, determinedValue }: ControlsProps) {
   return (
     <div className="grid grid-cols-5 gap-2 w-full">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <Button
-          key={i + 1}
-          onClick={() => onNumberPress(i + 1)}
-          className="aspect-square h-auto text-xl font-bold"
-          variant="secondary"
-        >
-          {i + 1}
-        </Button>
-      ))}
+      {Array.from({ length: 9 }).map((_, i) => {
+        const num = i + 1;
+        const isDisabled = determinedValue !== null && determinedValue !== num;
+        return (
+          <Button
+            key={num}
+            onClick={() => onNumberPress(num)}
+            className="aspect-square h-auto text-xl font-bold"
+            variant="secondary"
+            disabled={isDisabled}
+          >
+            {num}
+          </Button>
+        );
+      })}
       <Button
         onClick={onErase}
         className="aspect-square h-auto"

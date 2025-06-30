@@ -24,6 +24,32 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs}`;
 }
 
+function getPossibleValues(board: Board, pos: Position): Set<number> {
+  const possible = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+  for (let i = 0; i < 9; i++) {
+    if (board[pos.row][i].value !== 0) {
+      possible.delete(board[pos.row][i].value);
+    }
+    if (board[i][pos.col].value !== 0) {
+      possible.delete(board[i][pos.col].value);
+    }
+  }
+
+  const boxRowStart = Math.floor(pos.row / 3) * 3;
+  const boxColStart = Math.floor(pos.col / 3) * 3;
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const cellValue = board[boxRowStart + r][boxColStart + c].value;
+      if (cellValue !== 0) {
+        possible.delete(cellValue);
+      }
+    }
+  }
+  
+  return possible;
+}
+
 export function SudokuGame() {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
@@ -178,6 +204,24 @@ export function SudokuGame() {
     return null;
   }, [selectedCell, board]);
 
+  const determinedValue = useMemo<number | null>(() => {
+    if (!selectedCell || !board || mode !== 'input') {
+        return null;
+    }
+    const cell = board[selectedCell.row][selectedCell.col];
+    if (cell.value !== 0 || cell.isInitial) {
+        return null;
+    }
+    
+    const possibleValues = getPossibleValues(board, selectedCell);
+    
+    if (possibleValues.size === 1) {
+        return possibleValues.values().next().value;
+    }
+    
+    return null;
+  }, [selectedCell, board, mode]);
+
 
   if (gameState === 'menu') {
     return (
@@ -220,7 +264,7 @@ export function SudokuGame() {
         <Label htmlFor="mode-switch" className={mode === 'input' ? 'text-primary font-bold' : ''}>填入</Label>
       </div>
 
-      <Controls onNumberPress={handleNumberInput} onErase={handleErase} />
+      <Controls onNumberPress={handleNumberInput} onErase={handleErase} determinedValue={determinedValue} />
 
       <GameOverDialog
         isOpen={gameState === 'won' || gameState === 'lost'}
