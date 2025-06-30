@@ -213,12 +213,36 @@ export function SudokuGame() {
         return null;
     }
     
-    const possibleValues = getPossibleValues(board, selectedCell);
-    
-    if (possibleValues.size === 1) {
-        return possibleValues.values().next().value;
+    const { row, col } = selectedCell;
+
+    let rowCount = 0;
+    for (let i = 0; i < 9; i++) {
+        if (board[row][i].value !== 0) rowCount++;
     }
-    
+
+    let colCount = 0;
+    for (let i = 0; i < 9; i++) {
+        if (board[i][col].value !== 0) colCount++;
+    }
+
+    const boxRowStart = Math.floor(row / 3) * 3;
+    const boxColStart = Math.floor(col / 3) * 3;
+    let boxCount = 0;
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+            if (board[boxRowStart + r][boxColStart + c].value !== 0) {
+                boxCount++;
+            }
+        }
+    }
+
+    if (rowCount === 8 || colCount === 8 || boxCount === 8) {
+        const possibleValues = getPossibleValues(board, selectedCell);
+        if (possibleValues.size === 1) {
+            return possibleValues.values().next().value;
+        }
+    }
+
     return null;
   }, [selectedCell, board, mode]);
 
