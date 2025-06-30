@@ -33,15 +33,15 @@ export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, onCe
               key={`${r}-${c}`}
               onClick={() => onCellSelect(pos)}
               className={cn(
-                "relative flex items-center justify-center aspect-square text-base sm:text-lg md:text-2xl transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary z-0",
+                "relative flex items-center justify-center aspect-square text-[clamp(1rem,5vw,2rem)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary z-0",
                 "bg-card text-card-foreground",
                 cell.isInitial ? "font-bold" : "font-bold text-primary",
                 cell.isError && "text-destructive",
                 isRelated && !isSelected && "bg-secondary",
                 isHighlighted && !cell.isInitial && "bg-primary/20",
                 isSelected && "bg-primary/40 ring-2 ring-primary z-10",
-                (c + 1) % 3 === 0 && c !== 8 && "border-r md:border-r-2 border-r-border",
-                (r + 1) % 3 === 0 && r !== 8 && "border-b md:border-b-2 border-b-border",
+                (c + 1) % 3 === 0 && c !== 8 && "border-r-[clamp(1px,0.5vw,3px)] border-border",
+                (r + 1) % 3 === 0 && r !== 8 && "border-b-[clamp(1px,0.5vw,3px)] border-border",
                 c === 0 && "border-l-0",
                 r === 0 && "border-t-0",
                 c === 8 && "border-r-0",
@@ -56,7 +56,7 @@ export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, onCe
               ) : (
                 <div className="grid grid-cols-3 grid-rows-3 w-full h-full p-0.5">
                   {Array.from({ length: 9 }).map((_, i) => (
-                    <div key={i} className="flex items-center justify-center text-[0.5rem] sm:text-[0.6rem] md:text-xs text-muted-foreground">
+                    <div key={i} className="flex items-center justify-center text-[clamp(0.5rem,2.5vw,0.75rem)] text-muted-foreground">
                       {cell.notes.has(i + 1) ? i + 1 : ''}
                     </div>
                   ))}
