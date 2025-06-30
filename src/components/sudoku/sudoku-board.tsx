@@ -35,7 +35,7 @@ export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, onCe
               className={cn(
                 "relative flex items-center justify-center aspect-square text-base sm:text-lg md:text-2xl transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary z-0",
                 "bg-card text-card-foreground",
-                cell.isInitial ? "font-bold" : "font-normal text-primary",
+                cell.isInitial ? "font-bold" : "font-bold text-black dark:text-primary",
                 cell.isError && "text-destructive",
                 isRelated && !isSelected && "bg-secondary",
                 isHighlighted && !cell.isInitial && "bg-primary/20",

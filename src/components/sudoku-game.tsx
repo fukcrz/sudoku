@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Timer, Skull } from 'lucide-react';
+import { ArrowLeft, Timer, Skull } from 'lucide-react';
 
 type GameState = 'menu' | 'playing' | 'won' | 'lost';
 type Mode = 'input' | 'note';
@@ -267,6 +267,10 @@ export function SudokuGame() {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
       <div className="w-full flex justify-between items-center px-2 text-sm text-foreground/80">
+        <Button variant="ghost" size="sm" onClick={handleNewGame}>
+            <ArrowLeft className="w-4 h-4" />
+            返回
+        </Button>
         <div>{difficulty ? DIFFICULTY_LEVELS[difficulty].label : ''}</div>
         <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
