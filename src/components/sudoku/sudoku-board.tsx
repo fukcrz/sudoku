@@ -33,7 +33,7 @@ export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, onCe
               key={`${r}-${c}`}
               onClick={() => onCellSelect(pos)}
               className={cn(
-                "relative flex items-center justify-center aspect-square text-[clamp(0rem,6vw,3rem)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary z-0",
+                "relative flex items-center justify-center aspect-square text-[clamp(0rem,6vw,1.5rem)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary z-0",
                 "bg-card text-card-foreground",
                 cell.isInitial ? "font-bold" : "font-bold text-primary",
                 cell.isError && "text-destructive",
@@ -56,7 +56,7 @@ export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, onCe
               ) : (
                 <div className="grid grid-cols-3 grid-rows-3 w-full h-full p-0.5">
                   {Array.from({ length: 9 }).map((_, i) => (
-                    <div key={i} className="flex items-center justify-center text-[clamp(0rem,3vw,1rem)] text-muted-foreground">
+                    <div key={i} className="flex items-center justify-center text-[clamp(0rem,3vw,0.75rem)] text-muted-foreground">
                       {cell.notes.has(i + 1) ? i + 1 : ''}
                     </div>
                   ))}
