@@ -19,7 +19,7 @@ export function Controls({ onNumberPress, onErase, determinedValue }: ControlsPr
           <Button
             key={num}
             onClick={() => onNumberPress(num)}
-            className="aspect-square h-auto text-lg sm:text-xl font-bold"
+            className="aspect-square h-auto text-[clamp(1.125rem,5vw,1.25rem)] font-bold"
             variant="secondary"
             disabled={isDisabled}
           >

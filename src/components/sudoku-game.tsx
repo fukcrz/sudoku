@@ -351,7 +351,7 @@ export function SudokuGame() {
             返回
         </Button>
         <div>{difficulty ? DIFFICULTY_LEVELS[difficulty].label : ''}</div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-1">
                 <Skull className="w-4 h-4 text-destructive" />
                 <span>{errors} / {MAX_ERRORS}</span>
