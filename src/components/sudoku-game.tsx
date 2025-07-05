@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import type { Board, Cell, Position, Difficulty } from '@/types/sudoku';
+import type { Board, Position, Difficulty } from '@/types/sudoku';
 import { DIFFICULTY_LEVELS } from '@/types/sudoku';
 import { generateSudoku } from '@/lib/sudoku';
 import { SudokuBoard } from '@/components/sudoku/sudoku-board';
@@ -17,6 +17,7 @@ type GameState = 'menu' | 'playing' | 'won' | 'lost';
 type Mode = 'input' | 'note';
 
 const MAX_ERRORS = 3;
+const LOCAL_STORAGE_KEY = 'sudokuGameState';
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -60,6 +61,39 @@ export function SudokuGame() {
   const [mode, setMode] = useState<Mode>('input');
   const [time, setTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [savedGameExists, setSavedGameExists] = useState(false);
+
+  useEffect(() => {
+    try {
+      const savedGame = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedGame) {
+        setSavedGameExists(true);
+      }
+    } catch (error) {
+      console.error("Could not access localStorage:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (gameState === 'playing' && board && solution && difficulty) {
+        const gameStateToSave = {
+          difficulty,
+          board: board.map(row => row.map(cell => ({...cell, notes: Array.from(cell.notes)}))),
+          solution,
+          errors,
+          time,
+        };
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(gameStateToSave));
+        setSavedGameExists(true);
+      } else if (gameState === 'won' || gameState === 'lost') {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        setSavedGameExists(false);
+      }
+    } catch (error) {
+      console.error("Could not save to localStorage:", error);
+    }
+  }, [gameState, difficulty, board, solution, errors, time]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -92,6 +126,36 @@ export function SudokuGame() {
     setGameState('playing');
     setTime(0);
     setTimerRunning(true);
+  }, []);
+
+  const continueGame = useCallback(() => {
+    try {
+      const savedGameJSON = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedGameJSON) {
+        const savedGame = JSON.parse(savedGameJSON);
+        const loadedBoard: Board = savedGame.board.map((row: any) =>
+          row.map((cell: any) => ({
+            ...cell,
+            notes: new Set(cell.notes),
+          }))
+        );
+
+        setBoard(loadedBoard);
+        setSolution(savedGame.solution);
+        setDifficulty(savedGame.difficulty);
+        setErrors(savedGame.errors);
+        setTime(savedGame.time);
+        
+        setSelectedCell(null);
+        setMode('input');
+        setGameState('playing');
+        setTimerRunning(true);
+      }
+    } catch (error) {
+      console.error("Could not load game from localStorage:", error);
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      setSavedGameExists(false);
+    }
   }, []);
 
   const handleCellSelect = useCallback((pos: Position) => {
@@ -187,6 +251,11 @@ export function SudokuGame() {
     }
   }, [difficulty, startGame]);
 
+  const handleBackToMenu = useCallback(() => {
+    setGameState('menu');
+    setTimerRunning(false);
+  }, []);
+
   const handleNewGame = useCallback(() => {
     setGameState('menu');
     setBoard(null);
@@ -219,10 +288,18 @@ export function SudokuGame() {
     for (let i = 0; i < 9; i++) {
         if (board[row][i].value !== 0) rowCount++;
     }
+    if (rowCount === 8) {
+      const possible = getPossibleValues(board, selectedCell);
+      if (possible.size === 1) return possible.values().next().value;
+    }
 
     let colCount = 0;
     for (let i = 0; i < 9; i++) {
         if (board[i][col].value !== 0) colCount++;
+    }
+    if (colCount === 8) {
+      const possible = getPossibleValues(board, selectedCell);
+      if (possible.size === 1) return possible.values().next().value;
     }
 
     const boxRowStart = Math.floor(row / 3) * 3;
@@ -235,12 +312,9 @@ export function SudokuGame() {
             }
         }
     }
-
-    if (rowCount === 8 || colCount === 8 || boxCount === 8) {
-        const possibleValues = getPossibleValues(board, selectedCell);
-        if (possibleValues.size === 1) {
-            return possibleValues.values().next().value;
-        }
+    if (boxCount === 8) {
+      const possible = getPossibleValues(board, selectedCell);
+      if (possible.size === 1) return possible.values().next().value;
     }
 
     return null;
@@ -254,6 +328,11 @@ export function SudokuGame() {
           <CardTitle className="text-center text-2xl font-bold">选择难度</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4 p-6">
+          {savedGameExists && (
+            <Button onClick={continueGame} size="lg" variant="secondary">
+              继续游戏
+            </Button>
+          )}
           {Object.entries(DIFFICULTY_LEVELS).map(([key, { label }]) => (
             <Button key={key} onClick={() => startGame(key as Difficulty)} size="lg" variant="default">
               {label}
@@ -267,7 +346,7 @@ export function SudokuGame() {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
       <div className="w-full flex justify-between items-center px-2 text-sm text-foreground/80">
-        <Button variant="ghost" size="sm" onClick={handleNewGame}>
+        <Button variant="ghost" size="sm" onClick={handleBackToMenu}>
             <ArrowLeft className="w-4 h-4" />
             返回
         </Button>
